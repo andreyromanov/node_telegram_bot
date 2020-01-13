@@ -13,6 +13,7 @@
   "license": "ISC",
   "dependencies": {
     "express": "^4.17.1",
+    "mysql2": "^2.1.0",
     "node-telegram-bot-api": "^0.40.0",
     "viber-bot": "^1.0.14"
   }
