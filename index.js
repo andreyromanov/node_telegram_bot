@@ -6,8 +6,11 @@ const ViberBot = require('viber-bot').Bot,
 BotEvents = require('viber-bot').Events,
 TextMessage = require('viber-bot').Message.Text,
 express = require('express');
+const bodyParser = require('body-parser');
 const app = express();
 
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 /*
 const vbot = new ViberBot({
     authToken: VIBER_TOKEN,
@@ -80,5 +83,5 @@ app.use('/posts', postsRoute);
 
 app.listen(process.env.PORT, () => {
     console.log(`Application running...`);
-    
+
 });
