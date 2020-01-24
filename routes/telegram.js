@@ -34,7 +34,6 @@ bot.onText(/\/start/, function onLoveText(msg) {
         else{
            console.log(err)
         }
-
       }else{
          console.log('Inserted 1 row')
       }
@@ -110,7 +109,7 @@ bot.on("contact",(msg)=>{
         bot.sendMessage(msg.chat.id, "Спасибо :-)")
         console.log(msg.contact.phone_number, msg.chat.id)
       });
-
+      connection.end();
 })
 
 //получение внешних запросов
@@ -120,14 +119,31 @@ router.get('/', async (req,res) => {
     console.log('внешний')
 });
 
+
+//send info to users
 router.post('/', async (req,res) => {
+//create new connection
+  const connection = mysql.createConnection({
+    host: "localhost",
+    user: "admin",
+    database: "bot_db",
+    password: "uatao"
+  });
+//get data from request to variable
     var keyName1 = req.body;
-
     keyName1.forEach(function(item, value){
-      console.log(keyName1[value]["phone"])
-      console.log('--------------------')
+      connection.connect(function(err) {
+      if (err) throw err;
+        connection.query(`SELECT * FROM telegram_users WHERE phone = '${keyName1[value]["phone"]}'`, function (err, result, fields) {
+          if (err) throw err;
+          if(result[0] != null){
+            bot.sendMessage(result[0].chat_id, keyName1[value]["text"])
+            //console.log(result[0].id);
+          }
+        });
+      });
     });
-
+//sen response to server
     res.send('posted')
 });
 
