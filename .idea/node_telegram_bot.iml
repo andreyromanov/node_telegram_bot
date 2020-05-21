@@ -4,6 +4,12 @@
     <content url="file://$MODULE_DIR$" />
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="module" module-name="MessageCenter" />
+    <orderEntry type="module" module-name="ua-tao" />
+    <orderEntry type="module" module-name="bao" />
+    <orderEntry type="module" module-name="bao-client" />
+    <orderEntry type="module" module-name="bao-client" />
+    <orderEntry type="module" module-name="bao-client" />
+    <orderEntry type="module" module-name="ua-tao-admin" />
+    <orderEntry type="module" module-name="bao-websocket" />
   </component>
 </module>

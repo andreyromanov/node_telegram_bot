@@ -6,6 +6,10 @@ const TelegramBot = require('node-telegram-bot-api');
 
 const mysql = require("mysql2");
 
+
+const bodyParser = require('body-parser')
+
+
 const bot = new TelegramBot(process.env.TELEGRAM_TOKEN, {polling: true});
 
 const connection = mysql.createConnection({
@@ -14,8 +18,6 @@ const connection = mysql.createConnection({
   database: "Message_db",
   password: "uatao"
 });
-
-
 
 //dialog from starting conversation
 bot.on("text", (message) => {
@@ -31,7 +33,6 @@ bot.on("text", (message) => {
         if (err) throw err;
         connection.query(`SELECT * FROM dialogs`, function (err, result, fields) {
             if (err) throw err;
-
             result.forEach(function (arrayItem) {
                 if(message.text.toLowerCase().includes(arrayItem.key)) {
                     bot.sendMessage(message.chat.id, arrayItem.answer);
@@ -39,7 +40,6 @@ bot.on("text", (message) => {
             });
         });
     });
-
 });
 
 //START command
@@ -105,16 +105,18 @@ router.post('/', async (req,res) => {
   const connection = mysql.createConnection({
     host: "localhost",
     user: "admin",
-    database: "bot_db",
+    database: "Message_db",
     password: "uatao"
   });
 //get data from request to variable
     let keyName1 = req.body;
+    //console.log(typeof keyName1)
     keyName1.forEach(function(item, value){
       connection.connect(function(err) {
       if (err) throw err;
         connection.query(`SELECT * FROM telegram_users WHERE phone = '${keyName1[value]["phone"]}'`, function (err, result, fields) {
           if (err) throw err;
+          //console.log(result)
           if(result[0] != null){
             bot.sendMessage(result[0].chat_id, keyName1[value]["text"])
             //console.log(result[0].id);
