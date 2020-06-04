@@ -23,8 +23,8 @@ stepHandler.use((ctx) => ctx.replyWithMarkdown('Press `Next` button or type /nex
 const superWizard = new WizardScene('super-wizard',
     (ctx) => {
         ctx.reply('Step 1', Markup.inlineKeyboard([
-            Markup.urlButton('❤️', 'http://telegraf.js.org'),
-            Markup.callbackButton('➡️ Next', 'next')
+            Markup.callbackButton('Доставка️', 'next'),
+            Markup.callbackButton('Оплата', 'next')
         ]).extra())
         return ctx.wizard.next()
     },
@@ -53,7 +53,26 @@ bot.use(session())
 bot.use(stage.middleware())
 bot.launch()
 
+
+
 bot.startPolling()
+
+const Database = require('../DB.js')
+
+let database = new Database({
+    host     : process.env.HOST,
+    user     : process.env.db_USER,
+    password : process.env.PASS,
+    database : process.env.DB
+})
+
+
+database.query( 'SELECT * FROM telegram_users' ).then( rows => {
+    console.log(rows);
+}).catch( err => {
+    console.log(err);
+} );
+
 /*const TelegramBot = require('node-telegram-bot-api');
 
 const mysql = require("mysql2");

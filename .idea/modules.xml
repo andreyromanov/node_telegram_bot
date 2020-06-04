@@ -2,6 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
+      <module fileurl="file://$USER_HOME$/plugins/TRACKER 08.04.2020/.idea/TRACKER 08.04.2020.iml" filepath="$USER_HOME$/plugins/TRACKER 08.04.2020/.idea/TRACKER 08.04.2020.iml" />
       <module fileurl="file://$USER_HOME$/bao/admin.bao/.idea/bao.iml" filepath="$USER_HOME$/bao/admin.bao/.idea/bao.iml" />
       <module fileurl="file://$USER_HOME$/bao/bao-client/.idea/bao-client.iml" filepath="$USER_HOME$/bao/bao-client/.idea/bao-client.iml" />
       <module fileurl="file://$PROJECT_DIR$/../bao-websocket/.idea/bao-websocket.iml" filepath="$PROJECT_DIR$/../bao-websocket/.idea/bao-websocket.iml" />
