@@ -8,15 +8,20 @@ const session = require('telegraf/session')
 const Stage = require('telegraf/stage')
 const Markup = require('telegraf/markup')
 const WizardScene = require('telegraf/scenes/wizard')
+const Scene = require('telegraf/scenes/base')
+
+// Handler factoriess
+const { enter, leave } = Stage;
 
 const stepHandler = new Composer()
+/*
 stepHandler.action('next', (ctx) => {
     ctx.reply('Step 2. Via inline button')
     return ctx.wizard.next()
 })
 stepHandler.command('next', (ctx) => {
     ctx.reply('Step 2. Via command')
-    return ctx.wizard.next()
+    return ctx.scene.leave()
 })
 stepHandler.use((ctx) => ctx.replyWithMarkdown('Press `Next` button or type /next'))
 
@@ -45,9 +50,33 @@ const superWizard = new WizardScene('super-wizard',
         return ctx.scene.leave()
     }
 )
+*/
+// Greeter scene
+const greeterScene = new Scene('greeter')
+greeterScene.enter((ctx) => ctx.reply('Hi'))
+greeterScene.leave((ctx) => ctx.reply('Bye'))
+greeterScene.hears('hi', enter('greeter'))
+greeterScene.on('message', (ctx) => ctx.replyWithMarkdown('Send `hi`'))
+
+// Echo scene
+const echoScene = new Scene('echo')
+echoScene.enter((ctx) => ctx.reply('echo scene'))
+echoScene.leave((ctx) => ctx.reply('exiting echo scene'))
+echoScene.command('back', leave())
+echoScene.on('text', (ctx) => ctx.reply(ctx.message.text))
+echoScene.on('message', (ctx) => ctx.reply('Only text messages please'))
 
 const bot = new Telegraf(process.env.TELEGRAM_TOKEN)
-const stage = new Stage([superWizard], { default: 'super-wizard' })
+const stage = new Stage([greeterScene, echoScene], { ttl: 10 })
+bot.use(session())
+bot.use(stage.middleware())
+bot.command('greeter', (ctx) => ctx.scene.enter('greeter'))
+bot.command('echo', (ctx) => ctx.scene.enter('echo'))
+bot.on('message', (ctx) => ctx.reply('Try /echo or /greeter'))
+
+
+
+//const stage = new Stage([contactDataWizard], { default: 'super-wizard' })
 
 bot.use(session())
 bot.use(stage.middleware())
