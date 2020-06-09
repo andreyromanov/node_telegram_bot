@@ -2,7 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const router = express.Router();
 
-const Telegraf = require('telegraf')
+/*const Telegraf = require('telegraf')
 const Composer = require('telegraf/composer')
 const session = require('telegraf/session')
 const Stage = require('telegraf/stage')
@@ -13,7 +13,7 @@ const Scene = require('telegraf/scenes/base')
 // Handler factoriess
 const { enter, leave } = Stage;
 
-const stepHandler = new Composer()
+const stepHandler = new Composer()*/
 /*
 stepHandler.action('next', (ctx) => {
     ctx.reply('Step 2. Via inline button')
@@ -51,6 +51,7 @@ const superWizard = new WizardScene('super-wizard',
     }
 )
 */
+/*
 // Greeter scene
 const greeterScene = new Scene('greeter')
 greeterScene.enter((ctx) => ctx.reply('Hi'))
@@ -85,6 +86,7 @@ bot.launch()
 
 
 bot.startPolling()
+*/
 
 const Database = require('../DB.js')
 
@@ -102,7 +104,7 @@ database.query( 'SELECT * FROM telegram_users' ).then( rows => {
     console.log(err);
 } );
 
-/*const TelegramBot = require('node-telegram-bot-api');
+const TelegramBot = require('node-telegram-bot-api');
 
 const mysql = require("mysql2");
 
@@ -112,12 +114,6 @@ const bodyParser = require('body-parser')
 
 const bot = new TelegramBot(process.env.TELEGRAM_TOKEN, {polling: true});
 
-const connection = mysql.createConnection({
-  host: "localhost",
-  user: "admin",
-  database: "Message_db",
-  password: "uatao"
-});
 
 //dialog from starting conversation
 bot.on("text", (message) => {
@@ -227,5 +223,10 @@ router.post('/', async (req,res) => {
 //send response to server
     res.send('posted')
 });
-*/
+
+bot.on('message', (msg) => {
+   console.log('inbox', msg)
+    bot.sendMessage(msg.chat.id, 'Greetings')
+});
+
 module.exports = router;
