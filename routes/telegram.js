@@ -98,11 +98,11 @@ let database = new Database({
 })
 
 
-database.query( 'SELECT * FROM telegram_users' ).then( rows => {
-    console.log(rows);
-}).catch( err => {
-    console.log(err);
-} );
+//database.query( 'SELECT * FROM telegram_users' ).then( rows => {
+//    console.log(rows);
+//}).catch( err => {
+//    console.log(err);
+//} );
 
 const TelegramBot = require('node-telegram-bot-api');
 
@@ -116,7 +116,7 @@ const bot = new TelegramBot(process.env.TELEGRAM_TOKEN, {polling: true});
 
 
 //dialog from starting conversation
-bot.on("text", (message) => {
+/*bot.on("text", (message) => {
 
     const connection = mysql.createConnection({
         host: "localhost",
@@ -136,7 +136,7 @@ bot.on("text", (message) => {
             });
         });
     });
-});
+});*/
 
 //START command
 bot.onText(/\/start/, function onLoveText(msg) {
@@ -225,8 +225,12 @@ router.post('/', async (req,res) => {
 });
 
 bot.on('message', (msg) => {
-   console.log('inbox', msg)
-    bot.sendMessage(msg.chat.id, 'Greetings')
+   const {id} = msg.chat
+   bot.sendMessage(id, debug(msg))
 });
+
+function debug(obj={}){
+    return JSON.stringify(obj, null, 4)
+}
 
 module.exports = router;
