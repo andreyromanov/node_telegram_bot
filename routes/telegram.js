@@ -224,9 +224,74 @@ router.post('/', async (req,res) => {
     res.send('posted')
 });
 
+
+/*bot.on('message', (msg) => {
+    const {id} = msg.chat
+
+    const html = `<strong>Hello, ${msg.from.first_name}</strong><pre>dsf sdfsdfsdf sdf sdfs</pre>`;
+
+    const markdown = `*Hello, ${msg.from.first_name}* _Italic text_`;
+    /!*setTimeout(()=>{
+        bot.sendMessage(id, `https://ua-tao.com/`)
+    }, 4000)*!/
+
+    if(msg.text === 'Закрыть'){
+        bot.sendMessage(id, 'Closing', {
+            reply_markup:{
+                remove_keyboard: true
+            }
+        })
+    } else if (msg.text === 'Ответить') {
+        bot.sendMessage(id, 'Closing', {
+            reply_markup:{
+                force_reply: true
+            }
+        })
+    } else {
+        bot.sendMessage(id, `Keyboard`, {
+            reply_markup: {
+                keyboard: [
+                    ['Ответить', 'Закрыть'],
+                    ['Отправить контакт']
+                ],
+                one_time_keyboard: true
+            }
+        })
+    }
+
+
+});*/
+
 bot.on('message', (msg) => {
-   const {id} = msg.chat
-   bot.sendMessage(id, debug(msg))
+    const {id} = msg.chat
+
+    bot.sendMessage(id, `Головне меню`, {
+        reply_markup: {
+            inline_keyboard: [
+                [
+                    {
+                        text: 'faq',
+                        callback_data: '1'
+                    },
+                    {
+                        text: 'Оператор',
+                        callback_data: '2'
+                    }
+                ],
+                [
+                    {
+                        text: 'Website',
+                        url: 'https://ua-tao.com'
+                    }
+                ]
+            ],
+            one_time_keyboard: true
+        }
+    })
+});
+
+bot.on('callback_query', query => {
+    bot.sendMessage(query.message.chat.id , debug(query))
 });
 
 function debug(obj={}){
