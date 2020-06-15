@@ -285,13 +285,30 @@ bot.on('message', (msg) => {
                     }
                 ]
             ],
-            one_time_keyboard: true
+            //one_time_keyboard: true
         }
     })
 });
 
 bot.on('callback_query', query => {
-    bot.sendMessage(query.message.chat.id , debug(query))
+    bot.sendMessage(query.message.chat.id , debug(query), {reply_markup: {            inline_keyboard: [
+                [
+                    {
+                        text: 'faq',
+                        callback_data: '1'
+                    },
+                    {
+                        text: 'Оператор',
+                        callback_data: '2'
+                    }
+                ],
+                [
+                    {
+                        text: 'Website',
+                        url: 'https://ua-tao.com'
+                    }
+                ]
+            ]}})
 });
 
 function debug(obj={}){
