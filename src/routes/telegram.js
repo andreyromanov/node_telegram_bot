@@ -2,6 +2,10 @@ require('dotenv').config();
 const express = require('express');
 const router = express.Router();
 
+const helper = require('../helpers')
+const keyboard = require('../keyboard')
+const kb = require('../keyboard-buttons')
+
 /*const Telegraf = require('telegraf')
 const Composer = require('telegraf/composer')
 const session = require('telegraf/session')
@@ -139,7 +143,7 @@ const bot = new TelegramBot(process.env.TELEGRAM_TOKEN, {polling: true});
 });*/
 
 //START command
-bot.onText(/\/start/, function onLoveText(msg) {
+/*bot.onText(/\/start/, function onLoveText(msg) {
   bot.sendMessage(msg.chat.id, 'Добро пожаловать в компанию!');
 
   let sql = `INSERT INTO telegram_users (chat_id, first_name, last_name, language)
@@ -160,7 +164,7 @@ bot.onText(/\/start/, function onLoveText(msg) {
 	  });
 
   console.log(msg.chat.id)
-});
+});*/
 
 //PHONE command
 bot.onText(/\/phone/, function (msg, match) {
@@ -263,52 +267,55 @@ router.post('/', async (req,res) => {
 });*/
 
 bot.on('message', (msg) => {
-    const {id} = msg.chat
-
-    bot.sendMessage(id, `Головне меню`, {
-        reply_markup: {
-            inline_keyboard: [
-                [
-                    {
-                        text: 'faq',
-                        callback_data: '1'
-                    },
-                    {
-                        text: 'Оператор',
-                        callback_data: '2'
-                    }
-                ],
-                [
-                    {
-                        text: 'Website',
-                        url: 'https://ua-tao.com'
-                    }
-                ]
-            ],
-            //one_time_keyboard: true
-        }
-    })
+    switch (msg.text) {
+        case kb.home.delivery:
+            bot.sendMessage(helper.getChatId(msg), `Доставка`, {
+                reply_markup: {
+                    keyboard: keyboard.delivery
+                }
+            })
+            break
+        case kb.home.payments:
+            break
+        case kb.home.website:
+            break
+        case kb.back:
+            bot.sendMessage(helper.getChatId(msg), `Головне меню`, {
+                reply_markup: {
+                    keyboard: keyboard.home
+                }
+            })
+            break
+    }
 });
 
+bot.onText(/\/start/, msg => {
+    bot.sendMessage(helper.getChatId(msg), `Головне меню`, {
+        reply_markup: {
+            keyboard: keyboard.home
+        }
+    })
+})
+
 bot.on('callback_query', query => {
-    bot.sendMessage(query.message.chat.id , debug(query), {reply_markup: {            inline_keyboard: [
-                [
-                    {
-                        text: 'faq',
-                        callback_data: '1'
-                    },
-                    {
-                        text: 'Оператор',
-                        callback_data: '2'
-                    }
-                ],
-                [
-                    {
-                        text: 'Website',
-                        url: 'https://ua-tao.com'
-                    }
-                ]
-            ]}})
+    bot.sendMessage(query.message.chat.id , 'otvet', {reply_markup: {            inline_keyboard: [
+        [
+            {
+                text: 'faq',
+                callback_data: '1'
+            },
+            {
+                text: 'Оператор',
+                callback_data: '2'
+            }
+        ],
+        [
+            {
+                text: 'Website',
+                url: 'https://ua-tao.com'
+            }
+        ]
+    ]}})
 });
 
 function debug(obj={}){
