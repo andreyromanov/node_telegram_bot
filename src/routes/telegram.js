@@ -266,7 +266,7 @@ router.post('/', async (req,res) => {
 
 });*/
 
-bot.on('message', (msg) => {
+/*bot.on('message', (msg) => {
     switch (msg.text) {
         case kb.home.delivery:
             bot.sendMessage(helper.getChatId(msg), `Доставка`, {
@@ -287,14 +287,14 @@ bot.on('message', (msg) => {
             })
             break
     }
-});
+});*/
 
 bot.onText(/\/start/, msg => {
     console.log(keyboard.payment)
     bot.sendMessage(helper.getChatId(msg), `Головне меню`, {
 
         reply_markup: {
-            inline_keyboard: keyboard.payment
+            inline_keyboard: keyboard.home
         }
     })
 })
@@ -309,14 +309,22 @@ bot.on('callback_query', query => {
     console.log(query)
 
     switch (data) {
-        case '1':
-            bot.editMessageText( `Edited`, {
+        case 'info':
+            bot.editMessageText( `Інфориація`, {
+                chat_id : id,
+                message_id: query.message.message_id,
+                reply_markup: {
+                    inline_keyboard: keyboard.info
+                }
+            })
+            break
+        case 'payment':
+            bot.editMessageText( `Оплата`, {
                 chat_id : id,
                 message_id: query.message.message_id,
                 reply_markup: {
                     inline_keyboard: keyboard.payment
                 }
-
             })
             /*bot.sendMessage(id, `Оплата`, {
                 reply_markup: {
@@ -324,17 +332,33 @@ bot.on('callback_query', query => {
                 }
             })*/
             break
-        case '2':
-            bot.sendMessage(id, `Доставка`, {
+        case 'delivery':
+            bot.editMessageText( `Доставка`, {
+                chat_id : id,
+                message_id: query.message.message_id,
                 reply_markup: {
                     inline_keyboard: keyboard.delivery
                 }
             })
             break
-        case 'from_dostavka':
-            bot.sendMessage(id, `Оплата`, {
+        case 'delivery_nova':
+            bot.editMessageText( `loremisdjfisd fsd fusdh fisdhf 
+            dsjhbf jshdvfbg fdskghdsfv 
+            kjsdhfv dksjfhv dfjkhgv dfjhgvsjh
+             vsjhv asjh`, {
+                chat_id : id,
+                message_id: query.message.message_id,
                 reply_markup: {
-                    inline_keyboard: keyboard.payment
+                    inline_keyboard: keyboard.delivery_nova
+                }
+            })
+            break
+        case 'home':
+            bot.editMessageText( `Головне меню`, {
+                chat_id : id,
+                message_id: query.message.message_id,
+                reply_markup: {
+                    inline_keyboard: keyboard.home
                 }
             })
             break

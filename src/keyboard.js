@@ -2,14 +2,46 @@ const kb = require('./keyboard-buttons')
 
 module.exports = {
     home:[
-        [kb.home.delivery, kb.home.payments],
-        [kb.home.website]
+        [
+            {
+                text: 'Інформація',
+                callback_data: 'info'
+            },
+            {
+                text: 'Оператор',
+                callback_data: '2'
+            }
+        ],
+        [
+            {
+                text: 'ua-tao.com',
+                url: 'https://ua-tao.com'
+            }
+        ]
+    ],
+    info:[
+        [
+            {
+                text: 'Доставка',
+                callback_data: 'delivery'
+            },
+            {
+                text: 'Оплата',
+                callback_data: 'payment'
+            }
+        ],
+        [
+            {
+                text: 'Назад',
+                callback_data: 'home'
+            }
+        ]
     ],
     delivery:[
         [
             {
                 text: 'NOVA',
-                callback_data: '3'
+                callback_data: 'delivery_nova'
             },
             {
                 text: 'Idostavka',
@@ -19,7 +51,15 @@ module.exports = {
         [
             {
                 text: 'Назад',
-                callback_data: 'from_dostavka'
+                callback_data: 'home'
+            }
+        ]
+    ],
+    delivery_nova:[
+        [
+            {
+                text: 'Назад',
+                callback_data: 'delivery'
             }
         ]
     ],
@@ -37,7 +77,7 @@ module.exports = {
         [
             {
                 text: 'Назад',
-                callback_data: 'back'
+                callback_data: 'home'
             }
         ]
     ]
