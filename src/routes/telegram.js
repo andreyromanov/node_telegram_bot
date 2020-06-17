@@ -290,32 +290,56 @@ bot.on('message', (msg) => {
 });
 
 bot.onText(/\/start/, msg => {
+    console.log(keyboard.payment)
     bot.sendMessage(helper.getChatId(msg), `Головне меню`, {
+
         reply_markup: {
-            keyboard: keyboard.home
+            inline_keyboard: keyboard.payment
         }
     })
 })
 
 bot.on('callback_query', query => {
-    bot.sendMessage(query.message.chat.id , 'otvet', {reply_markup: {            inline_keyboard: [
-        [
-            {
-                text: 'faq',
-                callback_data: '1'
-            },
-            {
-                text: 'Оператор',
-                callback_data: '2'
-            }
-        ],
-        [
-            {
-                text: 'Website',
-                url: 'https://ua-tao.com'
-            }
-        ]
-    ]}})
+
+    const data = query.data;
+    const id = query.message.chat.id
+
+    //bot.deleteMessage(id, query.message.message_id)
+
+    console.log(query)
+
+    switch (data) {
+        case '1':
+            bot.editMessageText( `Edited`, {
+                chat_id : id,
+                message_id: query.message.message_id,
+                reply_markup: {
+                    inline_keyboard: keyboard.payment
+                }
+
+            })
+            /*bot.sendMessage(id, `Оплата`, {
+                reply_markup: {
+                    inline_keyboard: keyboard.payment
+                }
+            })*/
+            break
+        case '2':
+            bot.sendMessage(id, `Доставка`, {
+                reply_markup: {
+                    inline_keyboard: keyboard.delivery
+                }
+            })
+            break
+        case 'from_dostavka':
+            bot.sendMessage(id, `Оплата`, {
+                reply_markup: {
+                    inline_keyboard: keyboard.payment
+                }
+            })
+            break
+    }
+
 });
 
 function debug(obj={}){

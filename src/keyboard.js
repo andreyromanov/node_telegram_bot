@@ -6,8 +6,39 @@ module.exports = {
         [kb.home.website]
     ],
     delivery:[
-        [kb.delivery.np, kb.delivery.idostavka],
-        [kb.back]
+        [
+            {
+                text: 'NOVA',
+                callback_data: '3'
+            },
+            {
+                text: 'Idostavka',
+                callback_data: '4'
+            }
+        ],
+        [
+            {
+                text: 'Назад',
+                callback_data: 'from_dostavka'
+            }
+        ]
     ],
-    payments:[]
+    payment:[
+        [
+            {
+            text: 'faq',
+            callback_data: '1'
+            },
+            {
+                text: 'Оператор',
+                callback_data: '2'
+            }
+        ],
+        [
+            {
+                text: 'Назад',
+                callback_data: 'back'
+            }
+        ]
+    ]
 }
