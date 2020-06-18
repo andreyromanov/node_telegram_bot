@@ -1,7 +1,12 @@
-const kb = require('./keyboard-buttons')
 
 module.exports = {
     home:[
+        [
+            {
+                text: 'Кабінет',
+                callback_data: 'cabinet'
+            }
+        ],
         [
             {
                 text: 'Інформація',
@@ -9,7 +14,7 @@ module.exports = {
             },
             {
                 text: 'Оператор',
-                callback_data: '2'
+                callback_data: 'operator'
             }
         ],
         [
@@ -45,7 +50,7 @@ module.exports = {
             },
             {
                 text: 'Idostavka',
-                callback_data: '4'
+                callback_data: 'idostavka'
             }
         ],
         [
@@ -55,7 +60,7 @@ module.exports = {
             }
         ]
     ],
-    delivery_nova:[
+    delivery_back:[
         [
             {
                 text: 'Назад',
@@ -66,19 +71,25 @@ module.exports = {
     payment:[
         [
             {
-            text: 'faq',
-            callback_data: '1'
-            },
-            {
-                text: 'Оператор',
-                callback_data: '2'
+                text: 'Назад',
+                callback_data: 'home'
             }
-        ],
+        ]
+    ],
+    cabinet:[
         [
             {
                 text: 'Назад',
                 callback_data: 'home'
             }
         ]
+    ],
+    operator:[
+    [
+        {
+            text: 'Назад',
+            callback_data: 'home'
+        }
     ]
+],
 }

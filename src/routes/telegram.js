@@ -4,7 +4,7 @@ const router = express.Router();
 
 const helper = require('../helpers')
 const keyboard = require('../keyboard')
-const kb = require('../keyboard-buttons')
+const text = require('../info-text')
 
 /*const Telegraf = require('telegraf')
 const Composer = require('telegraf/composer')
@@ -309,8 +309,17 @@ bot.on('callback_query', query => {
     console.log(query)
 
     switch (data) {
+        case 'cabinet':
+            bot.editMessageText( `Кабінет`, {
+                chat_id : id,
+                message_id: query.message.message_id,
+                reply_markup: {
+                    inline_keyboard: keyboard.cabinet
+                }
+            })
+            break
         case 'info':
-            bot.editMessageText( `Інфориація`, {
+            bot.editMessageText( `Інформація`, {
                 chat_id : id,
                 message_id: query.message.message_id,
                 reply_markup: {
@@ -342,14 +351,29 @@ bot.on('callback_query', query => {
             })
             break
         case 'delivery_nova':
-            bot.editMessageText( `loremisdjfisd fsd fusdh fisdhf 
-            dsjhbf jshdvfbg fdskghdsfv 
-            kjsdhfv dksjfhv dfjkhgv dfjhgvsjh
-             vsjhv asjh`, {
+            bot.editMessageText( text.delivery_nova, {
                 chat_id : id,
                 message_id: query.message.message_id,
                 reply_markup: {
-                    inline_keyboard: keyboard.delivery_nova
+                    inline_keyboard: keyboard.delivery_back
+                }
+            })
+            break
+        case 'idostavka':
+            bot.editMessageText( text.idostavka, {
+                chat_id : id,
+                message_id: query.message.message_id,
+                reply_markup: {
+                    inline_keyboard: keyboard.delivery_back
+                }
+            })
+            break
+        case 'operator':
+            bot.editMessageText( `Оператор`, {
+                chat_id : id,
+                message_id: query.message.message_id,
+                reply_markup: {
+                    inline_keyboard: keyboard.operator
                 }
             })
             break
