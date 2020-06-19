@@ -6,92 +6,6 @@ const helper = require('../helpers')
 const keyboard = require('../keyboard')
 const text = require('../info-text')
 
-/*const Telegraf = require('telegraf')
-const Composer = require('telegraf/composer')
-const session = require('telegraf/session')
-const Stage = require('telegraf/stage')
-const Markup = require('telegraf/markup')
-const WizardScene = require('telegraf/scenes/wizard')
-const Scene = require('telegraf/scenes/base')
-
-// Handler factoriess
-const { enter, leave } = Stage;
-
-const stepHandler = new Composer()*/
-/*
-stepHandler.action('next', (ctx) => {
-    ctx.reply('Step 2. Via inline button')
-    return ctx.wizard.next()
-})
-stepHandler.command('next', (ctx) => {
-    ctx.reply('Step 2. Via command')
-    return ctx.scene.leave()
-})
-stepHandler.use((ctx) => ctx.replyWithMarkdown('Press `Next` button or type /next'))
-
-const superWizard = new WizardScene('super-wizard',
-    (ctx) => {
-        ctx.reply('Step 1', Markup.inlineKeyboard([
-            Markup.callbackButton('Доставка️', 'next'),
-            Markup.callbackButton('Оплата', 'next')
-        ]).extra())
-        return ctx.wizard.next()
-    },
-    stepHandler,
-    (ctx) => {
-        ctx.reply('Step 3', Markup.inlineKeyboard([
-            Markup.urlButton('❤️', 'http://telegraf.js.org'),
-            Markup.callbackButton('➡️ Next', 'next')
-        ]).extra())
-        return ctx.wizard.next()
-    },
-    (ctx) => {
-        ctx.reply('Step 4')
-        return ctx.wizard.next()
-    },
-    (ctx) => {
-        ctx.reply('Done')
-        return ctx.scene.leave()
-    }
-)
-*/
-/*
-// Greeter scene
-const greeterScene = new Scene('greeter')
-greeterScene.enter((ctx) => ctx.reply('Hi'))
-greeterScene.leave((ctx) => ctx.reply('Bye'))
-greeterScene.hears('hi', enter('greeter'))
-greeterScene.on('message', (ctx) => ctx.replyWithMarkdown('Send `hi`'))
-
-// Echo scene
-const echoScene = new Scene('echo')
-echoScene.enter((ctx) => ctx.reply('echo scene'))
-echoScene.leave((ctx) => ctx.reply('exiting echo scene'))
-echoScene.command('back', leave())
-echoScene.on('text', (ctx) => ctx.reply(ctx.message.text))
-echoScene.on('message', (ctx) => ctx.reply('Only text messages please'))
-
-const bot = new Telegraf(process.env.TELEGRAM_TOKEN)
-const stage = new Stage([greeterScene, echoScene], { ttl: 10 })
-bot.use(session())
-bot.use(stage.middleware())
-bot.command('greeter', (ctx) => ctx.scene.enter('greeter'))
-bot.command('echo', (ctx) => ctx.scene.enter('echo'))
-bot.on('message', (ctx) => ctx.reply('Try /echo or /greeter'))
-
-
-
-//const stage = new Stage([contactDataWizard], { default: 'super-wizard' })
-
-bot.use(session())
-bot.use(stage.middleware())
-bot.launch()
-
-
-
-bot.startPolling()
-*/
-
 const Database = require('../DB.js')
 
 let database = new Database({
@@ -101,23 +15,16 @@ let database = new Database({
     database : process.env.DB
 })
 
-
-//database.query( 'SELECT * FROM telegram_users' ).then( rows => {
-//    console.log(rows);
-//}).catch( err => {
-//    console.log(err);
-//} );
+database.query( 'SELECT * FROM telegram_users' ).then( rows => {
+   console.log(rows);
+}).catch( err => {
+   console.log(err);
+} );
 
 const TelegramBot = require('node-telegram-bot-api');
-
 const mysql = require("mysql2");
-
-
 const bodyParser = require('body-parser')
-
-
 const bot = new TelegramBot(process.env.TELEGRAM_TOKEN, {polling: true});
-
 
 //dialog from starting conversation
 /*bot.on("text", (message) => {
@@ -166,32 +73,6 @@ const bot = new TelegramBot(process.env.TELEGRAM_TOKEN, {polling: true});
   console.log(msg.chat.id)
 });*/
 
-//PHONE command
-bot.onText(/\/phone/, function (msg, match) {
-    let option = {
-        "parse_mode": "Markdown",
-        "reply_markup": {
-            "one_time_keyboard": true,
-            "keyboard": [[{
-                text: "Отправть номер телефона",
-                request_contact: true,
-                one_time_keyboard: true
-            }], ["Отменить"]]
-        }
-    };
-    bot.sendMessage(msg.chat.id, "Номер позволит получать больше информации", option).then(() => {})
-});
-
-bot.on("contact",(msg)=>{
-
-    let sql = `UPDATE telegram_users SET phone = '${msg.contact.phone_number}' WHERE chat_id = '${msg.chat.id}'`;
-      connection.query(sql, function (err, result) {
-        if(err) console.log(err);
-        bot.sendMessage(msg.chat.id, "Спасибо :-)");
-        console.log(msg.contact.phone_number, msg.chat.id)
-      });
-});
-
 //получение внешних запросов
 router.get('/', async (req,res) => {
     bot.sendMessage('391175023', `Внешний запрос`);
@@ -227,77 +108,39 @@ router.post('/', async (req,res) => {
 //send response to server
     res.send('posted')
 });
-
-
-/*bot.on('message', (msg) => {
-    const {id} = msg.chat
-
-    const html = `<strong>Hello, ${msg.from.first_name}</strong><pre>dsf sdfsdfsdf sdf sdfs</pre>`;
-
-    const markdown = `*Hello, ${msg.from.first_name}* _Italic text_`;
-    /!*setTimeout(()=>{
-        bot.sendMessage(id, `https://ua-tao.com/`)
-    }, 4000)*!/
-
-    if(msg.text === 'Закрыть'){
-        bot.sendMessage(id, 'Closing', {
-            reply_markup:{
-                remove_keyboard: true
-            }
-        })
-    } else if (msg.text === 'Ответить') {
-        bot.sendMessage(id, 'Closing', {
-            reply_markup:{
-                force_reply: true
-            }
-        })
-    } else {
-        bot.sendMessage(id, `Keyboard`, {
-            reply_markup: {
-                keyboard: [
-                    ['Ответить', 'Закрыть'],
-                    ['Отправить контакт']
-                ],
-                one_time_keyboard: true
-            }
-        })
-    }
-
-
-});*/
-
-/*bot.on('message', (msg) => {
-    switch (msg.text) {
-        case kb.home.delivery:
-            bot.sendMessage(helper.getChatId(msg), `Доставка`, {
-                reply_markup: {
-                    keyboard: keyboard.delivery
-                }
-            })
-            break
-        case kb.home.payments:
-            break
-        case kb.home.website:
-            break
-        case kb.back:
-            bot.sendMessage(helper.getChatId(msg), `Головне меню`, {
-                reply_markup: {
-                    keyboard: keyboard.home
-                }
-            })
-            break
-    }
-});*/
-
+//USER ENTERS CHAT
 bot.onText(/\/start/, msg => {
-    console.log(keyboard.payment)
+
+    let option = {
+        "parse_mode": "Markdown",
+        "reply_markup": {
+            "one_time_keyboard": true,
+            "keyboard": [[{
+                text: "Відправити мій номер телефону",
+                request_contact: true,
+                one_time_keyboard: true
+            }]]
+        }
+    };
+
+    bot.sendMessage(helper.getChatId(msg), `Для швидкої реєстрації тисни кнопку 'Відправити мій номер телефону'`, option)
+        .then(() => {})
+})
+
+bot.on("contact",(msg)=>{
     bot.sendMessage(helper.getChatId(msg), `Головне меню`, {
 
         reply_markup: {
             inline_keyboard: keyboard.home
         }
     })
-})
+    let sql = `UPDATE telegram_users SET phone = '${msg.contact.phone_number}' WHERE chat_id = '${msg.chat.id}'`;
+    connection.query(sql, function (err, result) {
+        if(err) console.log(err);
+
+        console.log(msg.contact.phone_number, msg.chat.id)
+    });
+});
 
 bot.on('callback_query', query => {
 
@@ -335,11 +178,6 @@ bot.on('callback_query', query => {
                     inline_keyboard: keyboard.payment
                 }
             })
-            /*bot.sendMessage(id, `Оплата`, {
-                reply_markup: {
-                    inline_keyboard: keyboard.payment
-                }
-            })*/
             break
         case 'delivery':
             bot.editMessageText( `Доставка`, {
@@ -387,11 +225,6 @@ bot.on('callback_query', query => {
             })
             break
     }
-
 });
-
-function debug(obj={}){
-    return JSON.stringify(obj, null, 4)
-}
 
 module.exports = router;
