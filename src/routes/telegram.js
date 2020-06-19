@@ -15,11 +15,11 @@ let database = new Database({
     database : process.env.DB
 })
 
-database.query( 'SELECT * FROM telegram_users' ).then( rows => {
-   console.log(rows);
-}).catch( err => {
-   console.log(err);
-} );
+database.query( 'SELECT * FROM telegram_users' )
+    .then( rows => {
+        console.log(rows);
+    })
+    .catch( err => console.log(err) );
 
 const TelegramBot = require('node-telegram-bot-api');
 const mysql = require("mysql2");
@@ -76,34 +76,44 @@ const bot = new TelegramBot(process.env.TELEGRAM_TOKEN, {polling: true});
 //получение внешних запросов
 router.get('/', async (req,res) => {
     bot.sendMessage('391175023', `Внешний запрос`);
+    bot.sendMessage('391175023', `Головне меню`, {
+        reply_markup: {
+            inline_keyboard: keyboard.home
+        }
+    })
     res.send('Hello World!')
     console.log('внешний')
 });
 
 //send info to users
 router.post('/', async (req,res) => {
+
 //create new connection
-  const connection = mysql.createConnection({
-    host: "localhost",
-    user: "admin",
-    database: "Message_db",
-    password: "uatao"
-  });
+    /*database.query( 'SELECT * FROM telegram_users' )
+        .then( rows => {
+            console.log(rows);
+        })
+        .catch( err => console.log(err) );*/
 //get data from request to variable
     let keyName1 = req.body;
     //console.log(typeof keyName1)
     keyName1.forEach(function(item, value){
-      connection.connect(function(err) {
-      if (err) throw err;
-        connection.query(`SELECT * FROM telegram_users WHERE phone = '${keyName1[value]["phone"]}'`, function (err, result, fields) {
+
+        database.query(`SELECT * FROM telegram_users WHERE phone = '${keyName1[value]["phone"]}'`, function (err, result, fields) {
           if (err) throw err;
-          //console.log(result)
+          console.log(result)
           if(result[0] != null){
             bot.sendMessage(result[0].chat_id, keyName1[value]["text"])
-            //console.log(result[0].id);
+            console.log(result[0].id);
           }
         });
-      });
+
+        database.query( `SELECT * FROM telegram_users WHERE phone = '${keyName1[value]["phone"]}'` )
+            .then( rows => {
+                console.log('new',rows);
+            })
+            .catch( err => console.log(err) );
+
     });
 //send response to server
     res.send('posted')
@@ -129,7 +139,6 @@ bot.onText(/\/start/, msg => {
 
 bot.on("contact",(msg)=>{
     bot.sendMessage(helper.getChatId(msg), `Головне меню`, {
-
         reply_markup: {
             inline_keyboard: keyboard.home
         }
