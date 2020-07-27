@@ -76,11 +76,11 @@ const bot = new TelegramBot(process.env.TELEGRAM_TOKEN, {polling: true});
 //получение внешних запросов
 router.get('/', async (req,res) => {
     bot.sendMessage('391175023', `Внешний запрос`);
-    bot.sendMessage('391175023', `Головне меню`, {
+    /*bot.sendMessage('391175023', `Головне меню`, {
         reply_markup: {
             inline_keyboard: keyboard.home
         }
-    })
+    })*/
     res.send('Hello World!')
     console.log('внешний')
 });
