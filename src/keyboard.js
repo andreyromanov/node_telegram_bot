@@ -45,7 +45,7 @@ module.exports = {
     delivery:[
         [
             {
-                text: 'NOVA',
+                text: 'Нова Пошта',
                 callback_data: 'delivery_nova'
             },
             {

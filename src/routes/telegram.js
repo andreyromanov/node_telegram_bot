@@ -15,6 +15,22 @@ let database = new Database({
     database : process.env.DB
 })
 
+let knex = require('knex')({
+    client: 'mysql',
+    connection: {
+        host : process.env.HOST,
+        user : process.env.db_USER,
+        password : process.env.PASS,
+        database : process.env.DB
+    }
+});
+
+knex('telegram_users')
+    .select()
+    .then(rows => { // Type of users is inferred as Pick<User, "id">[]
+        console.log('knex',rows);
+    }).catch( err => console.log(err) );
+
 database.query( 'SELECT * FROM telegram_users' )
     .then( rows => {
         console.log(rows);
