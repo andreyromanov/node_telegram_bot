@@ -2,6 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
+      <module fileurl="file://$USER_HOME$/laravels/MessageCenter/.idea/MessageCenter.iml" filepath="$USER_HOME$/laravels/MessageCenter/.idea/MessageCenter.iml" />
       <module fileurl="file://$PROJECT_DIR$/../Sklad/.idea/Sklad.iml" filepath="$PROJECT_DIR$/../Sklad/.idea/Sklad.iml" />
       <module fileurl="file://$USER_HOME$/plugins/TRACKER 07.09.2020/.idea/TRACKER 08.04.2020.iml" filepath="$USER_HOME$/plugins/TRACKER 07.09.2020/.idea/TRACKER 08.04.2020.iml" />
       <module fileurl="file://$USER_HOME$/plugins/TRACKER CATEGORIES/.idea/TRACKER CATEGORIES.iml" filepath="$USER_HOME$/plugins/TRACKER CATEGORIES/.idea/TRACKER CATEGORIES.iml" />

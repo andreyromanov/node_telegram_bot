@@ -2,20 +2,27 @@ require('dotenv').config();
 const express = require('express');
 const router = express.Router();
 
+const TelegramBot = require('node-telegram-bot-api');
+const mysql = require("mysql2");
+const bodyParser = require('body-parser')
+//polling
+const bot = new TelegramBot(process.env.TELEGRAM_TOKEN, {polling: true});
+
+//webhook
+/*const url = 'https://18c8cca0740c.ngrok.io/posts';
+const bot = new TelegramBot(process.env.TELEGRAM_TOKEN);
+bot.setWebHook(`${url}/bot${process.env.TELEGRAM_TOKEN}`);
+// We are receiving updates at the route below!
+router.post(`/bot${process.env.TELEGRAM_TOKEN}`, (req, res) => {
+    bot.processUpdate(req.body);
+    res.sendStatus(200);
+});*/
+//webhook
+
 const helper = require('../helpers')
 const keyboard = require('../keyboard')
-const text = require('../info-text')
 
-const Database = require('../DB.js')
-
-let database = new Database({
-    host     : process.env.HOST,
-    user     : process.env.db_USER,
-    password : process.env.PASS,
-    database : process.env.DB
-})
-
-let knex = require('knex')({
+const knex = require('knex')({
     client: 'mysql',
     connection: {
         host : process.env.HOST,
@@ -25,22 +32,17 @@ let knex = require('knex')({
     }
 });
 
-knex('telegram_users')
-    .select()
-    .then(rows => { // Type of users is inferred as Pick<User, "id">[]
-        console.log('knex',rows);
-    }).catch( err => console.log(err) );
+const NodeCache = require( "node-cache" );
+const myCache = new NodeCache();
 
-database.query( 'SELECT * FROM telegram_users' )
-    .then( rows => {
-        console.log(rows);
-    })
-    .catch( err => console.log(err) );
+/*const Database = require('../DB.js')
 
-const TelegramBot = require('node-telegram-bot-api');
-const mysql = require("mysql2");
-const bodyParser = require('body-parser')
-const bot = new TelegramBot(process.env.TELEGRAM_TOKEN, {polling: true});
+let database = new Database({
+    host     : process.env.HOST,
+    user     : process.env.db_USER,
+    password : process.env.PASS,
+    database : process.env.DB
+})*/
 
 //dialog from starting conversation
 /*bot.on("text", (message) => {
@@ -91,18 +93,12 @@ const bot = new TelegramBot(process.env.TELEGRAM_TOKEN, {polling: true});
 
 //получение внешних запросов
 router.get('/', async (req,res) => {
-    bot.sendMessage('391175023', `Внешний запрос`);
-    /*bot.sendMessage('391175023', `Головне меню`, {
-        reply_markup: {
-            inline_keyboard: keyboard.home
-        }
-    })*/
-    res.send('Hello World!')
     console.log('внешний')
 });
 
 //send info to users
 router.post('/', async (req,res) => {
+    console.log(req.headers);
 
 //create new connection
     /*database.query( 'SELECT * FROM telegram_users' )
@@ -134,105 +130,145 @@ router.post('/', async (req,res) => {
 //send response to server
     res.send('posted')
 });
+
 //USER ENTERS CHAT
-bot.onText(/\/start/, msg => {
+bot.on("text", msg => {
+    let { text } = msg;
 
-    let option = {
-        "parse_mode": "Markdown",
-        "reply_markup": {
-            "one_time_keyboard": true,
-            "keyboard": [[{
-                text: "Відправити мій номер телефону",
-                request_contact: true,
-                one_time_keyboard: true
-            }]]
-        }
-    };
+    if (/\/start/.test(text)){
+        let option = {
+            "parse_mode": "Markdown",
+            "reply_markup": {
+                "one_time_keyboard": true,
+                "keyboard": [[{
+                    text: "Відправити мій номер телефону",
+                    request_contact: true,
+                    one_time_keyboard: true
+                }]]
+            }
+        };
+        bot.sendMessage(helper.getChatId(msg), `Для швидкої реєстрації тисни кнопку 'Відправити мій номер телефону'`, option)
 
-    bot.sendMessage(helper.getChatId(msg), `Для швидкої реєстрації тисни кнопку 'Відправити мій номер телефону'`, option)
-        .then(() => {})
-})
+    } else if(/\/menu/.test(text)){
+        bot.sendMessage(helper.getChatId(msg), `Головне меню`, {
+            reply_markup: {
+                inline_keyboard: keyboard.home
+            }
+        })
+    } else {
+        //may be removed
+        console.log(msg.message_id, msg.chat.id)
+        bot.deleteMessage(msg.chat.id, msg.message_id)
+    }
+
+});
+
+bot.on('polling_error', (error) => {
+    //console.log(error);  // => 'EFATAL'
+});
 
 bot.on("contact",(msg)=>{
-    bot.sendMessage(helper.getChatId(msg), `Головне меню`, {
+    bot.sendMessage(helper.getChatId(msg), `Дякую!`, {
         reply_markup: {
-            inline_keyboard: keyboard.home
+            remove_keyboard: true
         }
+    }).then(()=>{
+        bot.sendMessage(helper.getChatId(msg), `Головне меню`, {
+            reply_markup: {
+                inline_keyboard: keyboard.home
+            }
+        })
     })
-    let sql = `UPDATE telegram_users SET phone = '${msg.contact.phone_number}' WHERE chat_id = '${msg.chat.id}'`;
+
+    /*let sql = `UPDATE telegram_users SET phone = '${msg.contact.phone_number}' WHERE chat_id = '${msg.chat.id}'`;
     connection.query(sql, function (err, result) {
         if(err) console.log(err);
 
         console.log(msg.contact.phone_number, msg.chat.id)
-    });
+    });*/
 });
 
-bot.on('callback_query', query => {
+bot.on('callback_query', async query => {
+    console.log('callback')
+    const { data } = query;
+    const { id } = query.message.chat;
 
-    const data = query.data;
-    const id = query.message.chat.id
+if(data !== 'operator' && data !== 'home'){
 
-    //bot.deleteMessage(id, query.message.message_id)
+    let menu;
+    let keys = [];
 
-    console.log(query)
+    if(myCache.has( "menu" )){
+        menu = myCache.get( "menu" )
+        console.log('cache')
+    } else{
+        menu = await knex('menu_items')
+            .where('menu_id',2)
+            .then(rows => {
+                myCache.set( "menu", rows, 12000 )
+                console.log('database')
+                return rows;
+            }).catch( err => console.log(err) );
+    }
 
+    for(let btn of menu){
+        if(btn.parent_id == data){
+            keys.push([{
+                text: btn.title,
+                callback_data: btn.id
+            }])
+        }  else if(!btn.parent_id && btn.id != data && data == 'info'){
+            keys.push([{
+                text: btn.title,
+                callback_data: btn.id
+            }])
+        }
+    }
+    let parent = menu.find(x => x.id == data)
+
+    if(parent === undefined){
+        keys.push([
+            {
+                text: 'Назад',
+                callback_data: 'home'
+            }
+        ])
+    } else if(parent.parent_id == null){
+        keys.push([
+            {
+                text: 'Назад',
+                callback_data: 'info'
+            },
+            {
+                text: 'Головна',
+                callback_data: 'home'
+            }
+        ])
+    } else {
+        keys.push([
+            {
+                text: 'Назад',
+                callback_data: parent.parent_id
+            },
+            {
+                text: 'Головна',
+                callback_data: 'home'
+            }
+        ])
+    }
+
+    let text = data === 'info' ? 'Обери, що тебе цікавить:' : menu.find(x => x.id == data)
+
+    bot.deleteMessage(id, query.message.message_id)
+    bot.sendMessage(id, text.text || text, {
+        reply_markup: {
+            inline_keyboard: keys
+        }
+    })
+}
     switch (data) {
-        case 'cabinet':
-            bot.editMessageText( `Кабінет`, {
-                chat_id : id,
-                message_id: query.message.message_id,
-                reply_markup: {
-                    inline_keyboard: keyboard.cabinet
-                }
-            })
-            break
-        case 'info':
-            bot.editMessageText( `Інформація`, {
-                chat_id : id,
-                message_id: query.message.message_id,
-                reply_markup: {
-                    inline_keyboard: keyboard.info
-                }
-            })
-            break
-        case 'payment':
-            bot.editMessageText( `Оплата`, {
-                chat_id : id,
-                message_id: query.message.message_id,
-                reply_markup: {
-                    inline_keyboard: keyboard.payment
-                }
-            })
-            break
-        case 'delivery':
-            bot.editMessageText( `Доставка`, {
-                chat_id : id,
-                message_id: query.message.message_id,
-                reply_markup: {
-                    inline_keyboard: keyboard.delivery
-                }
-            })
-            break
-        case 'delivery_nova':
-            bot.editMessageText( text.delivery_nova, {
-                chat_id : id,
-                message_id: query.message.message_id,
-                reply_markup: {
-                    inline_keyboard: keyboard.delivery_back
-                }
-            })
-            break
-        case 'idostavka':
-            bot.editMessageText( text.idostavka, {
-                chat_id : id,
-                message_id: query.message.message_id,
-                reply_markup: {
-                    inline_keyboard: keyboard.delivery_back
-                }
-            })
-            break
         case 'operator':
-            bot.editMessageText( `Оператор`, {
+            bot.editMessageText( `Перейдіть для звя'зку з оператором: @uatao_bot`, {
                 chat_id : id,
                 message_id: query.message.message_id,
                 reply_markup: {
@@ -251,5 +287,102 @@ bot.on('callback_query', query => {
             break
     }
 });
+
+/*
+knex('menu_items')
+    .where('menu_id',2)
+    .then(rows => {
+        let data = rows;
+        console.log('запрос в бд')
+
+        bot.on('callback_query',  async query => {
+            console.log('callback')
+            const { data } = query;
+            const { id } = query.message.chat;
+
+            if(data !== 'operator' && data !== 'home'){
+
+                bot.deleteMessage(id, query.message.message_id)
+
+                let keys = [];
+
+                for(let btn of rows){
+                    if(btn.parent_id == data){
+                        keys.push([{
+                            text: btn.title,
+                            callback_data: btn.id
+                        }])
+                    }  else if(!btn.parent_id && btn.id != data && data == 'info'){
+                        keys.push([{
+                            text: btn.title,
+                            callback_data: btn.id
+                        }])
+
+                    }
+                }
+                let parent = rows.find(x => x.id == data)
+                if(parent === undefined){
+                    keys.push([
+                        {
+                            text: 'Назад',
+                            callback_data: 'home'
+                        }
+                    ])
+                } else if(parent.parent_id == null){
+                    keys.push([
+                        {
+                            text: 'Назад',
+                            callback_data: 'info'
+                        },
+                        {
+                            text: 'Головна',
+                            callback_data: 'home'
+                        }
+                    ])
+                } else {
+                    keys.push([
+                        {
+                            text: 'Назад',
+                            callback_data: parent.parent_id
+                        },
+                        {
+                            text: 'Головна',
+                            callback_data: 'home'
+                        }
+                    ])
+                }
+
+                let text = data === 'info' ? 'Обери, що тебе цікавить:' : rows.find(x => x.id == data)
+
+                bot.sendMessage(id,  text.text || text, {
+                    reply_markup: {
+                        inline_keyboard: keys
+                    }
+                })
+            }
+            switch (data) {
+                case 'operator':
+                    bot.editMessageText( `Перейдіть для зв'зку з оператором: @uatao_bot`, {
+                        chat_id : id,
+                        message_id: query.message.message_id,
+                        reply_markup: {
+                            inline_keyboard: keyboard.operator
+                        }
+                    })
+                    break
+                case 'home':
+                    bot.editMessageText( `Головне меню`, {
+                        chat_id : id,
+                        message_id: query.message.message_id,
+                        reply_markup: {
+                            inline_keyboard: keyboard.home
+                        }
+                    })
+                    break
+            }
+        });
+
+    }).catch( err => console.log(err) );
+*/
 
 module.exports = router;

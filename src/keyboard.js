@@ -1,25 +1,24 @@
-
 module.exports = {
     home:[
-        [
+        /*[
             {
                 text: 'Кабінет',
                 callback_data: 'cabinet'
             }
-        ],
+        ],*/
         [
             {
-                text: 'Інформація',
+                text: '🔎 Довідка',
                 callback_data: 'info'
             },
             {
-                text: 'Оператор',
+                text: '📞 Оператор',
                 callback_data: 'operator'
             }
         ],
         [
             {
-                text: 'ua-tao.com',
+                text: '🖥️ ua-tao.com',
                 url: 'https://ua-tao.com'
             }
         ]

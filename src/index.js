@@ -3,8 +3,10 @@ process.env.NTBA_FIX_319 = 1;
 
 express = require('express');
 
+const isAuthorized = require("./middleware/auth.js");
 const bodyParser = require('body-parser');
 const app = express();
+app.use(isAuthorized);
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
